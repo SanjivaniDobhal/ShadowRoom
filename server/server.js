@@ -64,7 +64,8 @@ const io = new Server(server, {
 app.use(cors({
   origin: [
     'http://localhost:3000',
-    'http://localhost:5173'
+    'http://localhost:5173',
+    'https://shadow-room-iota.vercel.app'
   ],
   credentials: true
 }));
