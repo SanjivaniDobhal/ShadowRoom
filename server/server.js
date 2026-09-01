@@ -50,11 +50,13 @@ const server =
 
 const io = new Server(server, {
   cors: {
-    origin: 'http://localhost:5173',
+    origin: [
+      'http://localhost:5173',
+      'https://shadow-room-iota.vercel.app'
+    ],
     methods: ['GET', 'POST']
   }
 });
-
 // ======================
 // MIDDLEWARE
 // ======================
