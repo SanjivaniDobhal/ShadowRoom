@@ -6,34 +6,25 @@ const { Server } = require('socket.io');
 
 require('dotenv').config();
 
+
 // ======================
 // ROUTES
 // ======================
 
-const authRoutes =
-  require('./routes/auth');
+const authRoutes = require('./routes/auth');
+const postRoutes = require('./routes/posts');
+const chatbotRoutes = require('./routes/chatbot');
+const commentRoutes = require('./routes/comments');
+const categoryRoutes = require('./routes/categories');
+const adminRoutes = require('./routes/admin');
 
-const postRoutes =
-  require('./routes/posts');
-
-const chatbotRoutes =
-  require('./routes/chatbot');
-
-const commentRoutes =
-  require('./routes/comments');
-
-const categoryRoutes =
-  require('./routes/categories');
-
-const adminRoutes =
-  require('./routes/admin');
 
 // ======================
 // MODELS
 // ======================
 
-const RoomMessage =
-  require('./models/RoomMessage');
+const RoomMessage = require('./models/RoomMessage');
+
 
 // ======================
 // EXPRESS APP
@@ -41,217 +32,348 @@ const RoomMessage =
 
 const app = express();
 
-const server =
-  http.createServer(app);
+const server = http.createServer(app);
+
+
+// ======================
+// ALLOWED FRONTEND ORIGINS
+// ======================
+
+const allowedOrigins = [
+  'http://localhost:3000',
+  'http://localhost:5173',
+  'https://shadow-room-iota.vercel.app'
+];
+
+
+// ======================
+// CORS CONFIGURATION
+// ======================
+
+const corsOptions = {
+
+  origin: function (origin, callback) {
+
+    // Allow requests without origin
+    // Example: Postman, curl, server-to-server
+    if (!origin) {
+      return callback(null, true);
+    }
+
+    if (allowedOrigins.includes(origin)) {
+      return callback(null, true);
+    }
+
+    console.log(
+      '❌ CORS blocked origin:',
+      origin
+    );
+
+    return callback(
+      new Error('Not allowed by CORS')
+    );
+  },
+
+  credentials: true,
+
+  methods: [
+    'GET',
+    'POST',
+    'PUT',
+    'DELETE',
+    'PATCH',
+    'OPTIONS'
+  ],
+
+  allowedHeaders: [
+    'Content-Type',
+    'Authorization'
+  ]
+};
+
 
 // ======================
 // SOCKET.IO
 // ======================
 
 const io = new Server(server, {
+
   cors: {
-    origin: [
-      'http://localhost:5173',
-      'https://shadow-room-iota.vercel.app'
+
+    origin: allowedOrigins,
+
+    methods: [
+      'GET',
+      'POST'
     ],
-    methods: ['GET', 'POST']
+
+    credentials: true
   }
 });
+
+
 // ======================
 // MIDDLEWARE
 // ======================
 
-app.use(cors({
-  origin: [
-    'http://localhost:3000',
-    'http://localhost:5173',
-    'https://shadow-room-iota.vercel.app'
-  ],
-  credentials: true
-}));
+// CORS
+app.use(cors(corsOptions));
 
+// JSON body
 app.use(express.json());
 
-app.use(express.urlencoded({
-  extended: true
-}));
+// URL encoded body
+app.use(
+  express.urlencoded({
+    extended: true
+  })
+);
+
 
 // ======================
 // DATABASE
 // ======================
 
-mongoose.connect(
-  process.env.MONGODB_URI
-)
-.then(() => {
+mongoose
+  .connect(process.env.MONGODB_URI)
+  .then(() => {
 
-  console.log(
-    '✅ MongoDB Connected'
-  );
+    console.log(
+      '✅ MongoDB Connected'
+    );
 
-})
-.catch((err) => {
+  })
+  .catch((err) => {
 
-  console.error(
-    '❌ MongoDB connection error:',
-    err.message
-  );
+    console.error(
+      '❌ MongoDB connection error:',
+      err.message
+    );
 
-  process.exit(1);
-});
+    process.exit(1);
+  });
+
 
 // ======================
-// SOCKET LOGIC
+// SOCKET ROOM USERS
 // ======================
 
 const roomUsers = {};
 
-io.on('connection', (socket) => {
 
-  console.log(
-    '⚡ User connected:',
-    socket.id
-  );
+// ======================
+// SOCKET.IO CONNECTION
+// ======================
 
-  // ======================
-  // JOIN ROOM
-  // ======================
+io.on(
+  'connection',
+  (socket) => {
 
-  socket.on(
-    'join_room',
-    async (room) => {
+    console.log(
+      '⚡ User connected:',
+      socket.id
+    );
 
-      socket.join(room);
 
-      socket.room = room;
+    // ======================
+    // JOIN ROOM
+    // ======================
 
-      console.log(
-        `${socket.id} joined ${room}`
-      );
+    socket.on(
+      'join_room',
+      async (room) => {
 
-      // TRACK USERS
+        try {
 
-      if (!roomUsers[room]) {
-        roomUsers[room] = [];
-      }
+          socket.join(room);
 
-      roomUsers[room].push(
-        socket.id
-      );
+          socket.room = room;
 
-      io.to(room).emit(
-        'online_users',
-        roomUsers[room].length
-      );
-
-      // LOAD OLD MESSAGES
-
-      try {
-
-        const messages =
-          await RoomMessage.find({
-            room
-          })
-          .sort({
-            createdAt: 1
-          })
-          .limit(50);
-
-        socket.emit(
-          'previous_messages',
-          messages
-        );
-
-      } catch (error) {
-
-        console.error(error);
-      }
-    }
-  );
-
-  // ======================
-  // TYPING
-  // ======================
-
-  socket.on(
-    'typing',
-    (data) => {
-
-      socket.to(data.room).emit(
-        'user_typing',
-        data.username
-      );
-    }
-  );
-
-  // ======================
-  // SEND MESSAGE
-  // ======================
-
-  socket.on(
-    'send_message',
-    async (data) => {
-
-      try {
-
-        const newMessage =
-          await RoomMessage.create({
-            room: data.room,
-            username:
-              data.username,
-            message:
-              data.message,
-            userId:
-              data.userId || null
-          });
-
-        io.to(data.room).emit(
-          'receive_message',
-          newMessage
-        );
-
-      } catch (error) {
-
-        console.error(error);
-      }
-    }
-  );
-
-  // ======================
-  // DISCONNECT
-  // ======================
-
-  socket.on(
-    'disconnect',
-    () => {
-
-      const room =
-        socket.room;
-
-      if (
-        room &&
-        roomUsers[room]
-      ) {
-
-        roomUsers[room] =
-          roomUsers[room].filter(
-            (id) =>
-              id !== socket.id
+          console.log(
+            `${socket.id} joined ${room}`
           );
 
-        io.to(room).emit(
-          'online_users',
-          roomUsers[room].length
+
+          // ======================
+          // TRACK USERS
+          // ======================
+
+          if (!roomUsers[room]) {
+
+            roomUsers[room] = [];
+          }
+
+          roomUsers[room].push(
+            socket.id
+          );
+
+
+          // Send online user count
+          io.to(room).emit(
+            'online_users',
+            roomUsers[room].length
+          );
+
+
+          // ======================
+          // LOAD OLD MESSAGES
+          // ======================
+
+          const messages =
+            await RoomMessage
+              .find({
+                room
+              })
+              .sort({
+                createdAt: 1
+              })
+              .limit(50);
+
+
+          socket.emit(
+            'previous_messages',
+            messages
+          );
+
+        } catch (error) {
+
+          console.error(
+            '❌ Join room error:',
+            error.message
+          );
+        }
+      }
+    );
+
+
+    // ======================
+    // TYPING
+    // ======================
+
+    socket.on(
+      'typing',
+      (data) => {
+
+        if (!data || !data.room) {
+          return;
+        }
+
+        socket
+          .to(data.room)
+          .emit(
+            'user_typing',
+            data.username
+          );
+      }
+    );
+
+
+    // ======================
+    // SEND MESSAGE
+    // ======================
+
+    socket.on(
+      'send_message',
+      async (data) => {
+
+        try {
+
+          if (
+            !data ||
+            !data.room ||
+            !data.message
+          ) {
+
+            return;
+          }
+
+
+          const newMessage =
+            await RoomMessage.create({
+
+              room:
+                data.room,
+
+              username:
+                data.username,
+
+              message:
+                data.message,
+
+              userId:
+                data.userId || null
+            });
+
+
+          io
+            .to(data.room)
+            .emit(
+              'receive_message',
+              newMessage
+            );
+
+        } catch (error) {
+
+          console.error(
+            '❌ Send message error:',
+            error.message
+          );
+        }
+      }
+    );
+
+
+    // ======================
+    // DISCONNECT
+    // ======================
+
+    socket.on(
+      'disconnect',
+      () => {
+
+        const room =
+          socket.room;
+
+
+        if (
+          room &&
+          roomUsers[room]
+        ) {
+
+          roomUsers[room] =
+            roomUsers[room].filter(
+              (id) =>
+                id !== socket.id
+            );
+
+
+          io
+            .to(room)
+            .emit(
+              'online_users',
+              roomUsers[room].length
+            );
+
+
+          // Remove empty room
+          if (
+            roomUsers[room].length === 0
+          ) {
+
+            delete roomUsers[room];
+          }
+        }
+
+
+        console.log(
+          '❌ User disconnected:',
+          socket.id
         );
       }
+    );
+  }
+);
 
-      console.log(
-        '❌ User disconnected:',
-        socket.id
-      );
-    }
-  );
-});
 
 // ======================
 // API ROUTES
@@ -287,6 +409,7 @@ app.use(
   adminRoutes
 );
 
+
 // ======================
 // HEALTH CHECK
 // ======================
@@ -295,32 +418,57 @@ app.get(
   '/api/health',
   (req, res) => {
 
-    res.json({
+    res.status(200).json({
+
       status: 'healthy',
+
       timestamp:
         new Date().toISOString(),
+
       database:
-        mongoose.connection
-          .readyState === 1
+        mongoose.connection.readyState === 1
           ? 'connected'
           : 'disconnected'
     });
   }
 );
 
+
+// ======================
+// ROOT ROUTE
+// ======================
+
+app.get(
+  '/',
+  (req, res) => {
+
+    res.json({
+      success: true,
+      message: 'ShadowRoom API is running'
+    });
+  }
+);
+
+
 // ======================
 // 404 HANDLER
 // ======================
 
-app.use((req, res) => {
+app.use(
+  (req, res) => {
 
-  res.status(404).json({
-    success: false,
-    error: 'Route not found',
-    message:
-      `Cannot ${req.method} ${req.originalUrl}`
-  });
-});
+    res.status(404).json({
+
+      success: false,
+
+      error: 'Route not found',
+
+      message:
+        `Cannot ${req.method} ${req.originalUrl}`
+    });
+  }
+);
+
 
 // ======================
 // ERROR HANDLER
@@ -335,16 +483,22 @@ app.use(
   ) => {
 
     console.error(
-      '❌ Error:',
+      '❌ Server Error:',
       err.message
     );
 
+
     res.status(500).json({
+
       success: false,
-      error: err.message
+
+      error:
+        err.message ||
+        'Internal server error'
     });
   }
 );
+
 
 // ======================
 // START SERVER
@@ -353,21 +507,26 @@ app.use(
 const PORT =
   process.env.PORT || 5000;
 
-server.listen(PORT, () => {
 
-  console.log(
-    '================================='
-  );
+server.listen(
+  PORT,
+  '0.0.0.0',
+  () => {
 
-  console.log(
-    `🚀 Server running on port ${PORT}`
-  );
+    console.log(
+      '================================='
+    );
 
-  console.log(
-    `📍 Health: http://localhost:${PORT}/api/health`
-  );
+    console.log(
+      `🚀 Server running on port ${PORT}`
+    );
 
-  console.log(
-    '================================='
-  );
-});
+    console.log(
+      `📍 Health: http://localhost:${PORT}/api/health`
+    );
+
+    console.log(
+      '================================='
+    );
+  }
+);
