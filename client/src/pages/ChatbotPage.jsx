@@ -1,6 +1,10 @@
 import { useState, useRef, useEffect } from "react";
 import "../styles/chatbot.css";
 
+const API_URL =
+  import.meta.env.VITE_API_URL ||
+  'http://localhost:5000/api';
+
 const personaLabels = {
   echo: "🌑 Echo",
   drift: "⚡ Drift",
@@ -78,7 +82,7 @@ export default function ChatbotPage() {
 }));
     try {
       const response = await fetch(
-        "http://localhost:5000/api/chatbot/chat",
+        `${API_URL}/chatbot/chat`,
         {
           method: "POST",
           headers: {
@@ -124,7 +128,7 @@ export default function ChatbotPage() {
   const switchPersona = async (selectedPersona) => {
     try {
       await fetch(
-        "http://localhost:5000/api/chatbot/persona",
+        `${API_URL}/chatbot/persona`,
         {
           method: "POST",
           headers: {
@@ -147,8 +151,8 @@ export default function ChatbotPage() {
   // Reset Chat
   const resetChat = async () => {
     try {
-      await fetch(
-        "http://localhost:5000/api/chatbot/reset",
+     await fetch(
+      `${API_URL}/chatbot/reset`,
         {
           method: "POST",
         }
