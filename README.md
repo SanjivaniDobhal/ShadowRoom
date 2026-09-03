@@ -1,448 +1,223 @@
-# ShadowRoom 👻
+# ShadowRoom – Anonymous Social Platform
 
-> An anonymous social platform for sharing thoughts, experiences, and support while maintaining user privacy.
+An anonymous social platform for sharing thoughts, experiences, and support while maintaining user privacy.
 
-## 📌 Overview
+---
 
-ShadowRoom is a full-stack anonymous social platform developed as a college-level project with a strong focus on web application security.
+## Overview
 
-The project combines modern web development with practical cybersecurity concepts such as authentication, authorization, password hashing, API security, input validation, CORS, secure configuration, and security testing.
+ShadowRoom is a full-stack anonymous social platform developed as a college-level project with focus on web application security. It combines modern web development with cybersecurity concepts including authentication, authorization, password hashing, API security, input validation, CORS, and security testing.
 
-The goal of the project is to provide users with a private space where they can express themselves anonymously while also serving as a practical environment for learning secure application development and web security testing.
+The platform provides users with a private space for anonymous expression while serving as a practical environment for learning secure application development.
 
-## 🎯 Objectives
+---
 
-- Build a functional anonymous social platform.
-- Implement user registration and authentication.
-- Protect authenticated API endpoints.
-- Store passwords securely using hashing.
-- Provide anonymous posting and interaction.
-- Implement real-time anonymous chat rooms.
-- Provide an AI-powered chatbot.
-- Add administrative controls for managing users and content.
-- Deploy the application using cloud services.
-- Apply cybersecurity concepts during development and testing.
+## Features
 
-## ✨ Features
-
-### Authentication
-
-- User registration
-- User login
-- JWT-based authentication
-- Protected API routes
+**User Authentication**
+- Registration and login with JWT
 - Password hashing using bcrypt
 - Email verification
-- Resend email verification
-- Logout
-- Authentication state management
+- Protected API routes
 
-### Anonymous Posts
+**Anonymous Posts**
+- Create, view, and delete posts
+- Relate to and bookmark posts
+- Report inappropriate content
+- Administrative post management
 
-- Create anonymous posts
-- View all posts
-- View individual posts
-- Relate to posts
-- Bookmark posts
-- Report posts
-- Delete posts
-- View personal posts
-- Administrative post deletion
+**Comments**
+- Add, view, and delete comments
+- Authentication-based operations
 
-### Comments
-
-- Add comments
-- View comments
-- Delete comments
-- Authentication-based comment operations
-
-### Anonymous Chat Rooms
-
-- Real-time communication using Socket.IO
-- Room-based messaging
+**Real-time Chat**
+- Socket.IO based messaging
+- Room-based communication
 - Online user count
 - Typing indicators
-- Previous message loading
-- Persistent room messages
+- Persistent messages
 
-### AI Chatbot
-
-- AI-powered conversation
-- Chatbot persona configuration
+**AI Chatbot**
+- AI-powered conversations
+- Configurable persona
 - Conversation reset
 
-### Admin Panel
+**Admin Panel**
+- User management (view, ban, unban, delete)
+- Content moderation (view and delete reported posts)
 
-- View users
-- Ban users
-- Unban users
-- Delete users
-- View reported content
-- Delete reported posts
+---
 
-## 🔐 Cybersecurity Perspective
+## Security Implementation
 
-Security is an important part of ShadowRoom because the project was developed as a practical learning environment for web application security.
+**Authentication & Authorization**
+- JWT-based authentication
+- Protected API endpoints with token verification
+- Authorization: Bearer token header
 
-The application focuses on understanding how security controls are implemented in a real-world full-stack application and how those controls can be tested from an attacker's perspective.
+**Password Security**
+- bcryptjs for hashing
+- No plaintext password storage
 
-### Authentication and Authorization
+**Input Validation**
+- express-validator for data validation
+- Applied to registration, login, posts, comments, reports, admin operations
 
-The application uses JSON Web Tokens for authentication.
+**API Security**
+- REST API architecture
+- HTTPS in production
+- CORS configured for specific origins
 
-A simplified authentication flow is:
+**Environment Security**
+- Sensitive data in environment variables
+- .gitignore excludes environment files
 
-User → Frontend → Login API → Backend → Credential Validation → JWT Generation → Protected API Requests
+**Security Testing**
+- Burp Suite integration
+- Testing: Authentication, authorization, IDOR, XSS, injection, CORS, JWT, rate-limiting, business logic, API security
 
-Authenticated requests send the token using the Authorization header.
+---
 
-Example:
+## Technology Stack
 
-Authorization: Bearer <JWT>
+**Frontend**
+- React, Vite, Tailwind CSS
 
-The backend can then verify the token before allowing access to protected resources.
+**Backend**
+- Node.js, Express.js, Socket.IO
+- JWT, bcryptjs, Nodemailer, express-validator
 
-### Password Security
+**Database**
+- MongoDB, MongoDB Atlas, Mongoose
 
-User passwords are not intended to be stored as plaintext.
-
-The application uses bcryptjs for password hashing.
-
-Password registration flow:
-
-Plain Password → bcrypt Hashing → Password Hash → Database
-
-Login flow:
-
-Entered Password → bcrypt Comparison → Stored Password Hash → Authentication Result
-
-### Input Validation
-
-The backend uses express-validator to validate incoming data.
-
-Validation is important for areas such as:
-
-- Registration
-- Login
-- Posts
-- Comments
-- Reports
-- Administrative operations
-
-Input validation helps prevent malformed or unexpected data from reaching application logic.
-
-### API Security
-
-The frontend communicates with the backend through REST API endpoints.
-
-Production architecture:
-
-Browser → HTTPS → React Frontend → Express API → MongoDB Atlas
-
-Authenticated API requests include the user's JWT when required.
-
-### CORS
-
-The backend uses CORS configuration to control allowed frontend origins.
-
-The production frontend is configured as an allowed origin instead of allowing arbitrary browser origins.
-
-### Environment Variables
-
-Sensitive configuration such as database credentials, JWT secrets, email credentials, and API keys are stored in environment variables.
-
-Environment files containing secrets are excluded from Git using .gitignore.
-
-Sensitive credentials should never be committed to a public repository.
-
-### Security Testing
-
-As a cybersecurity-focused project, ShadowRoom can be tested using tools such as Burp Suite.
-
-Security testing can include:
-
-- Authentication testing
-- Authorization testing
-- IDOR testing
-- Access control testing
-- Input validation testing
-- XSS testing
-- Injection testing
-- CORS testing
-- JWT and session testing
-- Rate-limit testing
-- Business logic testing
-- API security testing
-
-A typical testing workflow is:
-
-Reconnaissance → Application Mapping → Endpoint Discovery → Authentication Testing → Authorization Testing → Input Validation Testing → Session and Token Testing → Business Logic Testing → API Testing → Remediation
-
-## 🏗️ Architecture
-
-ShadowRoom follows a frontend, backend, and database architecture.
-
-Browser
-   ↓
-React + Vite Frontend
-   ↓
-Vercel
-   ↓
-Node.js + Express Backend
-   ↓
-Render
-   ↓
-MongoDB Atlas
-
-Real-time chat communication uses Socket.IO between the frontend and backend.
-
-## 🛠️ Technology Stack
-
-### Frontend
-
-- React
-- Vite
-- JavaScript
-- HTML5
-- CSS
-- Tailwind CSS
-
-### Backend
-
-- Node.js
-- Express.js
-- REST APIs
-- Socket.IO
-- JSON Web Token
-- bcryptjs
-- Nodemailer
-- express-validator
-
-### Database
-
-- MongoDB
-- MongoDB Atlas
-- Mongoose
-
-### AI
-
+**AI**
 - Google Generative AI
 
-### Security and Testing
+**Deployment**
+- Vercel (Frontend), Render (Backend), MongoDB Atlas (Database)
 
-- Burp Suite
-- OWASP security concepts
-- API testing
-- Authentication testing
-- Authorization testing
-- Input validation testing
-- CORS testing
+**Security Testing**
+- Burp Suite, OWASP concepts
 
-### Development
+---
 
-- Visual Studio Code
-- Git
-- GitHub
-- npm
+## Architecture
 
-### Deployment
+```
+Browser → React Frontend → Express Backend → MongoDB Atlas
+                           ↓
+                    Socket.IO (Real-time Chat)
+```
 
-- Vercel
-- Render
-- MongoDB Atlas
+---
 
-## 📂 Project Structure
+## API Endpoints
 
+**Authentication**
+- POST /api/auth/register
+- POST /api/auth/login
+- GET /api/auth/me
+- POST /api/auth/logout
+- GET /api/auth/verify-email/:token
+- POST /api/auth/resend-verification
+
+**Posts**
+- GET /api/posts
+- GET /api/posts/:id
+- POST /api/posts
+- DELETE /api/posts/:id
+- POST /api/posts/:id/relate
+- POST /api/posts/:id/bookmark
+- POST /api/posts/:id/report
+- GET /api/posts/user/my-posts
+- GET /api/posts/reported
+- DELETE /api/posts/admin/:id
+
+**Comments**
+- GET /api/comments/post/:postId
+- POST /api/comments
+- DELETE /api/comments/:commentId
+
+**Admin**
+- GET /api/admin/users
+- PUT /api/admin/users/:userId/ban
+- PUT /api/admin/users/:userId/unban
+- DELETE /api/admin/users/:userId
+
+**Health Check**
+- GET /api/health
+
+---
+
+## Project Structure
+
+```
 ShadowRoom/
-│
-├── client/
+├── client/          # React frontend
 │   ├── src/
-│   ├── package.json
-│   └── ...
-│
-├── server/
+│   └── package.json
+├── server/          # Express backend
 │   ├── models/
 │   ├── routes/
 │   ├── middleware/
 │   ├── server.js
-│   ├── package.json
-│   └── ...
-│
+│   └── package.json
 ├── .gitignore
-├── package.json
-├── package-lock.json
 └── README.md
+```
 
-## 🔄 API Overview
+---
 
-### Authentication
+## Installation
 
-POST /api/auth/register
+**Prerequisites:** Node.js, npm, MongoDB account
 
-POST /api/auth/login
-
-GET /api/auth/me
-
-POST /api/auth/logout
-
-GET /api/auth/verify-email/:token
-
-POST /api/auth/resend-verification
-
-### Posts
-
-GET /api/posts
-
-GET /api/posts/:id
-
-POST /api/posts
-
-POST /api/posts/:id/relate
-
-DELETE /api/posts/:id
-
-GET /api/posts/user/my-posts
-
-POST /api/posts/:id/bookmark
-
-POST /api/posts/:id/report
-
-GET /api/posts/reported
-
-DELETE /api/posts/admin/:id
-
-### Comments
-
-GET /api/comments/post/:postId
-
-POST /api/comments
-
-DELETE /api/comments/:commentId
-
-### Categories
-
-GET /api/categories
-
-### Admin
-
-GET /api/admin/users
-
-PUT /api/admin/users/:userId/ban
-
-PUT /api/admin/users/:userId/unban
-
-DELETE /api/admin/users/:userId
-
-### Health Check
-
-GET /api/health
-
-Example response:
-
-{
-  "status": "healthy",
-  "database": "connected"
-}
-
-## 🚀 Run Locally
-
-### Clone the repository
-
+```bash
+# Clone repository
 git clone https://github.com/SanjivaniDobhal/ShadowRoom.git
-
 cd ShadowRoom
 
-### Install frontend dependencies
-
+# Install frontend dependencies
 cd client
-
 npm install
 
-### Install backend dependencies
-
+# Install backend dependencies
 cd ../server
-
 npm install
 
-### Configure environment variables
-
-Create a file named .env inside the server directory.
-
-Example configuration:
-
+# Create .env file in server directory
 PORT=5000
-
 MONGODB_URI=your_mongodb_connection_string
-
 JWT_SECRET=your_jwt_secret
-
 EMAIL_USER=your_email
-
 EMAIL_PASS=your_email_app_password
-
 GEMINI_API_KEY=your_gemini_api_key
 
-Never commit real credentials to GitHub.
-
-### Start the backend
-
-From the server directory:
-
+# Start backend
 npm run dev
 
-The backend will run on:
-
-http://localhost:5000
-
-Health check:
-
-http://localhost:5000/api/health
-
-### Start the frontend
-
-Open another terminal:
-
+# Start frontend (new terminal)
 cd client
-
 npm run dev
+```
 
-The frontend will run on:
+**Access:** Frontend at `http://localhost:5173`, Backend at `http://localhost:5000`
 
-http://localhost:5173
+---
 
-## 🌍 Production Deployment
+## Production Deployment
 
-The production deployment uses:
+| Component | Platform |
+|-----------|----------|
+| Frontend | Vercel |
+| Backend | Render |
+| Database | MongoDB Atlas |
 
-Frontend: Vercel
+**Environment Variables:** VITE_API_URL, VITE_SOCKET_URL
 
-Backend: Render
+---
 
-Database: MongoDB Atlas
-
-Production flow:
-
-User Browser
-   ↓
-Vercel
-   ↓
-Render
-   ↓
-MongoDB Atlas
-
-Frontend environment variables:
-
-VITE_API_URL=https://your-backend-url
-
-VITE_SOCKET_URL=https://your-backend-url
-
-Production secrets are configured through the hosting platform and are not stored in the GitHub repository.
-
-## 🧪 Security Testing Methodology
-
-ShadowRoom can be used as a controlled environment for practicing web application security testing.
-
-A security assessment can follow this process:
+## Security Testing Workflow
 
 1. Reconnaissance
 2. Application mapping
@@ -454,81 +229,60 @@ A security assessment can follow this process:
 8. Session and token testing
 9. API testing
 10. Business logic testing
-11. Security header and CORS testing
-12. Vulnerability validation
-13. Remediation
-14. Retesting
+11. Vulnerability validation
+12. Remediation and retesting
 
-Burp Suite can be used as a proxy between the browser and application:
+**Burp Suite:** Browser → Burp Suite → ShadowRoom API
 
-Browser → Burp Suite → ShadowRoom API
+---
 
-This allows HTTP requests and responses to be inspected during authorized security testing.
-
-## 📚 Cybersecurity Learning Outcomes
-
-Building ShadowRoom helped develop practical understanding of:
+## Learning Outcomes
 
 - Web application architecture
 - Authentication and authorization
 - JWT-based authentication
 - Password hashing
 - REST API security
-- CORS
+- CORS configuration
 - Input validation
 - Access control
 - Session and token security
-- WebSocket security considerations
+- WebSocket security
 - Database security
-- Environment variable management
 - Secure deployment
-- HTTP request and response analysis
 - Security testing methodology
 - Vulnerability identification and remediation
 
-The project also provides a practical environment for applying concepts learned through web security labs and hands-on security testing.
+---
 
-## 🔮 Future Improvements
+## Future Improvements
 
-Planned security and functionality improvements include:
-
-- Stronger rate limiting
-- Security headers
-- Improved session and token management
-- More granular authorization
-- WebSocket authentication and authorization
-- Centralized security logging
-- Abuse detection
+- Rate limiting and security headers
+- Improved session management
+- WebSocket authentication
+- Centralized logging
 - Automated security testing
 - Dependency vulnerability scanning
-- Improved content moderation
-- Security monitoring and alerting
-- Improved privacy controls
+- Enhanced content moderation
+- Security monitoring
 
-## ⚠️ Disclaimer
+---
 
-ShadowRoom is a college-level educational project.
+## Disclaimer
 
-The security controls in the application are continuously being improved and should not be considered a guarantee of complete production security.
+ShadowRoom is a college-level educational project. Security controls are continuously being improved. Security testing should only be performed with proper authorization.
 
-Security testing should only be performed against systems for which permission has been obtained.
+---
 
-## 👩‍💻 Author
+## Author
 
-Sanjivani Dobhal
-
+**Sanjivani Dobhal**
 Cybersecurity Student | Web Application Security | Bug Bounty | VAPT
 
-Areas of interest:
+**Interests:** Web Application Security, Bug Bounty, VAPT, API Security, Authentication and Authorization, Security Research, Secure Application Development
 
-- Web Application Security
-- Bug Bounty
-- Vulnerability Assessment and Penetration Testing
-- API Security
-- Authentication and Authorization
-- Security Research
-- Secure Application Development
+---
 
-## 📜 License
+## License
 
-This project is intended primarily for educational and learning purposes.
+Educational and learning purposes only.
